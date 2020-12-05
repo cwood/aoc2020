@@ -59,6 +59,7 @@ if __name__ == "__main__":
     print("Highest: %s" % (highest))
     seat_ids.sort()
 
-    for pid in range(seat_ids[0], seat_ids[len(seat_ids)-1]):
-        if pid not in seat_ids:
-            print("Missing seat: %s" % (pid))
+    complete = set(range(seat_ids[0], seat_ids[len(seat_ids)-1]))
+    diff = complete - set(seat_ids)
+
+    print("Missing seats: %s" % (diff))
