@@ -4,36 +4,28 @@ seat_id_multiplier = 8
 
 # FBFBBFFRLR
 def seat_id_from_string(seat_id_pattern):
+    def parse_pattern(row_identifier, upper_char, lower_char, startrange):
+        rows = list(startrange)
+        row_id = 0
+        for p in row_identifier:
+            half = int(len(rows)/2)
+
+            if  upper_char == p:
+                rows = rows[:half]
+            elif lower_char == p:
+                rows = rows[-half:]
+
+            if len(rows) == 1:
+                row_id = rows[0]
+        return row_id
+
     row_identifier = seat_id_pattern[:7]
     column_identifier = seat_id_pattern[-3:]
 
-    row_id = 0
-    rows = list(range(128))
-    for p in row_identifier:
+    row_id = parse_pattern(row_identifier, "F", "B", range(128))
+    column_id = parse_pattern(column_identifier, "L", "R", range(8))
 
-        half = int(len(rows)/2)
-
-        if "F" == p:
-            rows = rows[:half]
-        elif "B" == p:
-            rows = rows[-half:]
-
-        if len(rows) == 1:
-            row_id = rows[0]
-
-    plane_column = 0
-    plane_columns = list(range(8))
-    for r in column_identifier:
-        half = int(len(plane_columns)/2)
-        if r == "R":
-            plane_columns = plane_columns[-half:]
-        elif r == "L":
-            plane_columns = plane_columns[:half]
-
-        if len(plane_columns) == 1:
-            plane_column = plane_columns[0]
-
-    return (row_id * seat_id_multiplier) + plane_column
+    return (row_id * seat_id_multiplier) + column_id
 
 if __name__ == "__main__":
 
@@ -47,8 +39,7 @@ if __name__ == "__main__":
 
     plane_tickets = [l for l in open("input").read().split("\n") if l]
 
-    highest = 0
-    seat_ids = []
+    highest, seat_ids = 0, []
 
     for ticket in plane_tickets:
         seat_id = seat_id_from_string(ticket)
