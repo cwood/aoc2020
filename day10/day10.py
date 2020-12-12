@@ -28,29 +28,20 @@ def jolt_differences(jolts):
 
 def jolt_possibilities(jolts):
 
-    jolts.append(0)
     jolts.sort()
-    jolts.insert(len(jolts), jolts[len(jolts)-1]+3)
 
-    pos = 1
+    total_arrangements = {0: 1}
     i = 0
     while i <= len(jolts)-1:
         cjolt = jolts[i]
-
-        total_opts = 0
-        j = 0
-        while j <= len(jolts[0:i])-1:
-            jjolt = jolts[j]
-            for a in [1, 2, 3]:
-                if jjolt + a == cjolt:
-                    total_opts += 1
-            j += 1
+        options = [cjolt-1, cjolt-2, cjolt-3]
+        n = 0
+        for o in options:
+            n += total_arrangements.get(o, 0)
+        total_arrangements[cjolt] = n
         i += 1
 
-        print(pos, total_opts)
-
-    print(pos)
-    return pos
+    return total_arrangements[jolts[-1]]
 
 
 if __name__ == "__main__":
@@ -65,3 +56,4 @@ if __name__ == "__main__":
     jolts = [int(i) for i in open("input").readlines() if i]
     realdiff = jolt_differences(jolts)
     print("Part 1: %s" % (realdiff[1] * realdiff[3]))
+    print("Part 2: %s" % (jolt_possibilities(jolts)))
