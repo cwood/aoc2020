@@ -16,13 +16,13 @@ POSITIONS = [
 ]
 
 
-def check_surround(seats, pos, symbol, around=None, depth=1):
+def check_surround(seats, pos, symbol, around=None):
     seats_around = []
 
     for check_pos in POSITIONS:
         to_check = [
-            (check_pos[0] * depth) + pos[0],  # X Axis
-            (check_pos[1] * depth) + pos[1],  # Y Axis
+            check_pos[0] + pos[0],  # X Axis
+            check_pos[1] + pos[1],  # Y Axis
         ]
 
         if to_check[0] < 0 or to_check[1] < 0:
