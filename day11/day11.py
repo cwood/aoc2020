@@ -16,7 +16,7 @@ POSITIONS = [
 ]
 
 
-def check_surround(seats, pos, symbol, around=None):
+def check_surround(seats, pos, symbol, around=None, visible_seat=False):
     seats_around = []
 
     for check_pos in POSITIONS:
@@ -33,10 +33,23 @@ def check_surround(seats, pos, symbol, around=None):
             if seat in (OCCUPIED, SEAT):
                 seats_around.append(seat)
                 # print(pos, symbol, around, to_check)
+            else:
+                if visible_seat:
+                    while seat == FLOOR:
+                        to_check = [
+                            check_pos[0] + to_check[0],  # X Axis
+                            check_pos[1] + to_check[1],  # Y Axis
+                        ]
+
+                        if to_check[0] < 0 or to_check[1] < 0:
+                            raise IndexError
+
+                        seat = seats[to_check[0]][to_check[1]]
+                    seats_around.append(seat)
         except IndexError:
             continue
 
-    # print(pos, symbol, around, seats_around, depth)
+    # print(pos, symbol, around, seats_around)
 
     if not around:
         return all([a == symbol for a in seats_around])
@@ -44,7 +57,7 @@ def check_surround(seats, pos, symbol, around=None):
     return seats_around.count(symbol) >= around
 
 
-def shift_seats(current_map, around):
+def shift_seats(current_map, around, visible_seat=False):
     new_map = [list(row) for row in current_map]
 
     for x, row in enumerate(current_map):
@@ -52,7 +65,8 @@ def shift_seats(current_map, around):
             current_seat = current_map[x][y]
 
             if current_seat == SEAT:
-                check_res = check_surround(current_map, [x, y], SEAT)
+                check_res = check_surround(current_map, [x, y], SEAT,
+                                           visible_seat=visible_seat)
                 # print([x, y], current_seat, check_res, SEAT, OCCUPIED)
                 if check_res:
                     new_map[x][y] = OCCUPIED
@@ -60,7 +74,8 @@ def shift_seats(current_map, around):
                 check_res = check_surround(current_map,
                                            [x, y],
                                            OCCUPIED,
-                                           around=around)
+                                           around=around,
+                                           visible_seat=visible_seat)
                 # print([x, y], current_seat, check_res, OCCUPIED, SEAT)
                 if check_res:
                     new_map[x][y] = SEAT
@@ -70,10 +85,10 @@ def shift_seats(current_map, around):
     return ["".join(row) for row in new_map]
 
 
-def finalize_seats(layout, around):
+def finalize_seats(layout, around, visible_seat=False):
 
     while True:
-        new_layout = shift_seats(layout, around)
+        new_layout = shift_seats(layout, around, visible_seat=visible_seat)
         new_seats = "\n".join(new_layout)
 
         seats_occupied = new_seats.count(OCCUPIED)
@@ -91,11 +106,15 @@ if __name__ == "__main__":
     print(f"Found {seats_found} seats found")
     assert seats_found == 37
 
-    # seats_found = finalize_seats(testlayout, 5)
-    # print(f"Second Part: found {seats_found} seats found")
-    # assert seats_found == 26
+    seats_found = finalize_seats(testlayout, 5, visible_seat=True)
+    print(f"Second Part: found {seats_found} seats found")
+    assert seats_found == 26
 
     layout = [line.strip() for line in open("input").readlines()]
     seats_found = finalize_seats(layout, 4)
     print(f"Found {seats_found} seats found")
     assert seats_found == 2277
+
+    layout = [line.strip() for line in open("input").readlines()]
+    seats_found = finalize_seats(layout, 5, visible_seat=True)
+    print(f"Second Part: found {seats_found} seats found")
